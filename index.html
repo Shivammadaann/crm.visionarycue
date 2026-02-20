@@ -545,7 +545,7 @@
     <div class="nav-item" onclick="showPipeline()"><i class="fas fa-chart-line"></i><span>Pipeline</span></div>
     
     <!-- Add this to your sidebar, e.g., after the Pipeline item -->
-<div class="nav-item" onclick="showMetaAds()"><i class="fas fa-chart-bar"></i><span>Meta Ads</span></div>
+    <div class="nav-item" onclick="showMetaAds()"><i class="fas fa-chart-bar"></i><span>Meta Ads</span></div>
 
     <div class="admin-info">
         <div id="sidebar-role-label" class="text-xs text-gray-400 mb-2"></div>
@@ -582,89 +582,90 @@
         </div>
     </div>
 
-<!-- New Meta Ads Pane -->
-<div id="meta-ads-pane" class="hidden-pane">
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h1 class="text-3xl font-bold text-white">Meta Ads Performance</h1>
-            <p class="text-gray-400 text-sm mt-1">Campaign data from the last 30 days</p>
+    <!-- New Meta Ads Pane -->
+    <div id="meta-ads-pane" class="hidden-pane">
+        <div class="flex justify-between items-center mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-white">Meta Ads Performance</h1>
+                <p class="text-gray-400 text-sm mt-1">Campaign data from the last 30 days</p>
+            </div>
         </div>
-    </div>
 
-<!-- Inside meta-ads-pane, after the header and before summary cards -->
-<div class="filter-bar">
-    <div class="date-wrapper">
-        <label for="meta-date-from"><i class="far fa-calendar-alt mr-1"></i>From:</label>
-        <input type="date" id="meta-date-from">
-    </div>
-    <div class="date-wrapper">
-        <label for="meta-date-to"><i class="far fa-calendar-alt mr-1"></i>To:</label>
-        <input type="date" id="meta-date-to">
-    </div>
-    <button class="btn btn-primary" onclick="applyMetaDateFilter()">Apply</button>
-    <button class="clear-btn" onclick="resetMetaDateFilter()">Reset to Last 30 Days</button>
-</div>
-<!-- Add this inside your meta-ads-pane, after the date filter -->
-<div class="bg-[#1a2332] rounded-2xl p-6 mb-8">
-    <h2 class="text-xl font-bold text-white mb-4">Create Custom Audience from CRM</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Audience Selection -->
-        <div>
-            <label class="block text-gray-400 text-sm mb-2">Select Leads to Include</label>
-            <select id="audience-segment" class="input-field">
-                <option value="hot">Hot Leads Only</option>
-                <option value="warm">Warm Leads Only</option>
-                <option value="cold">Cold Leads Only</option>
-                <option value="all">All Digital Sales Leads</option>
-                <option value="store">Store Inquiries</option>
-            </select>
+        <!-- Inside meta-ads-pane, after the header and before summary cards -->
+        <div class="filter-bar">
+            <div class="date-wrapper">
+                <label for="meta-date-from"><i class="far fa-calendar-alt mr-1"></i>From:</label>
+                <input type="date" id="meta-date-from">
+            </div>
+            <div class="date-wrapper">
+                <label for="meta-date-to"><i class="far fa-calendar-alt mr-1"></i>To:</label>
+                <input type="date" id="meta-date-to">
+            </div>
+            <button class="btn btn-primary" onclick="applyMetaDateFilter()">Apply</button>
+            <button class="clear-btn" onclick="resetMetaDateFilter()">Reset to Last 30 Days</button>
         </div>
-        
-        <!-- Audience Name -->
-        <div>
-            <label class="block text-gray-400 text-sm mb-2">Audience Name</label>
-            <input type="text" id="audience-name" class="input-field" placeholder="e.g., Hot Leads Feb 2026">
-        </div>
-    </div>
-    
-    <div class="flex gap-3 mt-4">
-        <button class="btn btn-primary" onclick="createCustomAudience()">
-            <i class="fas fa-users mr-2"></i>Create Custom Audience
-        </button>
-        <button class="btn btn-secondary" onclick="syncToExistingAudience()">
-            <i class="fas fa-sync mr-2"></i>Sync to Existing Audience
-        </button>
-    </div>
-    
-    <!-- Status message area -->
-    <div id="audience-status" class="mt-4 text-sm hidden"></div>
-</div>
-    <!-- Placeholder for Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" id="meta-ads-summary">
-        <!-- Stats will be injected here by JavaScript -->
-    </div>
 
-    <!-- Table for Campaign Data -->
-    <div class="table-container">
-        <table id="meta-ads-table">
-            <thead>
-                <tr>
-                    <th>Campaign</th>
-                    <th>Impressions</th>
-                    <th>Clicks</th>
-                    <th>Spend (₹)</th>
-                    <th>CPC (₹)</th>
-                    <th>CTR (%)</th>
-                    <th>Date Range</th>
-                </tr>
-            </thead>
-            <tbody id="meta-ads-table-body">
-                <!-- Data will be injected here by JavaScript -->
-            </tbody>
-        </table>
+        <!-- Add this inside your meta-ads-pane, after the date filter -->
+        <div class="bg-[#1a2332] rounded-2xl p-6 mb-8">
+            <h2 class="text-xl font-bold text-white mb-4">Create Custom Audience from CRM</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Audience Selection -->
+                <div>
+                    <label class="block text-gray-400 text-sm mb-2">Select Leads to Include</label>
+                    <select id="audience-segment" class="input-field">
+                        <option value="hot">Hot Leads Only</option>
+                        <option value="warm">Warm Leads Only</option>
+                        <option value="cold">Cold Leads Only</option>
+                        <option value="all">All Digital Sales Leads</option>
+                        <option value="store">Store Inquiries</option>
+                    </select>
+                </div>
+                
+                <!-- Audience Name -->
+                <div>
+                    <label class="block text-gray-400 text-sm mb-2">Audience Name</label>
+                    <input type="text" id="audience-name" class="input-field" placeholder="e.g., Hot Leads Feb 2026">
+                </div>
+            </div>
+            
+            <div class="flex gap-3 mt-4">
+                <button class="btn btn-primary" onclick="createCustomAudience()">
+                    <i class="fas fa-users mr-2"></i>Create Custom Audience
+                </button>
+                <button class="btn btn-secondary" onclick="syncToExistingAudience()">
+                    <i class="fas fa-sync mr-2"></i>Sync to Existing Audience
+                </button>
+            </div>
+            
+            <!-- Status message area -->
+            <div id="audience-status" class="mt-4 text-sm hidden"></div>
+        </div>
+        <!-- Placeholder for Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" id="meta-ads-summary">
+            <!-- Stats will be injected by JavaScript -->
+        </div>
+
+        <!-- Table for Campaign Data -->
+        <div class="table-container">
+            <table id="meta-ads-table">
+                <thead>
+                    <tr>
+                        <th>Campaign</th>
+                        <th>Impressions</th>
+                        <th>Clicks</th>
+                        <th>Spend (₹)</th>
+                        <th>CPC (₹)</th>
+                        <th>CTR (%)</th>
+                        <th>Date Range</th>
+                    </tr>
+                </thead>
+                <tbody id="meta-ads-table-body">
+                    <!-- Data will be injected here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
     <!-- Department Dashboard (for digital/abroad/domestic) -->
     <div id="department-dashboard" class="hidden-pane">
@@ -967,12 +968,18 @@ function login(u, r) {
         activeDepartment = 'digital';
         columnFilters.owner = currentUser;
         document.getElementById('dept-dashboard-title').innerHTML = `👤 ${u}'s Leads (Digital Sales) <span class="dept-indicator">DIGITAL</span>`;
+        // Set active class on Digital Sales nav item for team members
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (item.innerText.includes('Digital Sales')) item.classList.add('active');
+        });
     }
     // Hide all panes initially, then show appropriate one
     document.getElementById('gmeet-pane').classList.add('hidden-pane');
     document.getElementById('pipeline-pane').classList.add('hidden-pane');
     document.getElementById('store-dashboard').classList.add('hidden-pane');
     document.getElementById('home-analytics').classList.add('hidden-pane');
+    document.getElementById('meta-ads-pane').classList.add('hidden-pane');
     
     loadAllSheets();
     showToast(`Welcome, ${u}!`);
@@ -1201,6 +1208,7 @@ function selectDepartment(dept) {
     document.getElementById('pipeline-pane').classList.add('hidden-pane');
     document.getElementById('store-dashboard').classList.add('hidden-pane');
     document.getElementById('home-analytics').classList.add('hidden-pane');
+    document.getElementById('meta-ads-pane').classList.add('hidden-pane');
     
     const titles = { digital:'Digital Sales', abroad:'Study Abroad', domestic:'Career Counselling' };
     let title = titles[dept];
@@ -1494,6 +1502,7 @@ function showStore() {
     document.getElementById('pipeline-pane').classList.add('hidden-pane');
     document.getElementById('store-dashboard').classList.remove('hidden-pane');
     document.getElementById('home-analytics').classList.add('hidden-pane');
+    document.getElementById('meta-ads-pane').classList.add('hidden-pane');
     
     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -1618,6 +1627,7 @@ function showHomeAnalytics() {
     document.getElementById('pipeline-pane').classList.add('hidden-pane');
     document.getElementById('store-dashboard').classList.add('hidden-pane');
     document.getElementById('home-analytics').classList.remove('hidden-pane');
+    document.getElementById('meta-ads-pane').classList.add('hidden-pane');
     
     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     document.getElementById('nav-home').classList.add('active');
@@ -1693,6 +1703,7 @@ function showGMeet() {
     document.getElementById('pipeline-pane').classList.add('hidden-pane');
     document.getElementById('store-dashboard').classList.add('hidden-pane');
     document.getElementById('home-analytics').classList.add('hidden-pane');
+    document.getElementById('meta-ads-pane').classList.add('hidden-pane');
     
     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -1710,6 +1721,7 @@ function showPipeline() {
     document.getElementById('pipeline-pane').classList.remove('hidden-pane');
     document.getElementById('store-dashboard').classList.add('hidden-pane');
     document.getElementById('home-analytics').classList.add('hidden-pane');
+    document.getElementById('meta-ads-pane').classList.add('hidden-pane');
     
     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -1752,10 +1764,9 @@ function exportToExcel() {
 document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-overlay.active').forEach(m=>m.classList.remove('active')); });
 setInterval(loadAllSheets, 300000);
 
-// Add this to your existing <script> section
-
-// --- New function to show the Meta Ads pane ---
+// ========== META ADS FUNCTIONS ==========
 function showMetaAds() {
+    activeDepartment = null;
     // Hide all other panes
     document.getElementById('dept-select-screen').style.display = 'none';
     document.getElementById('department-dashboard').classList.add('hidden-pane');
@@ -1767,19 +1778,16 @@ function showMetaAds() {
     // Show the Meta Ads pane
     document.getElementById('meta-ads-pane').classList.remove('hidden-pane');
 
-        // Reset to last 30 days and fetch
+    // Update active state in sidebar
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(item => {
+        if (item.innerText.includes('Meta Ads')) item.classList.add('active');
+    });
+
+    // Reset to last 30 days and fetch
     resetMetaDateFilter();
 }
-    // Update active state in sidebar (you'll need to add the nav item for Meta Ads first)
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-    // Assuming you add a nav item with an onclick="showMetaAds()"
-    // You'll need to add the logic to highlight it here.
 
-    // Fetch and render the data
-    fetchMetaAdsData();
-
-
-// --- New function to fetch data from our backend ---
 async function fetchMetaAdsData(fromDate, toDate) {
     const tbody = document.getElementById('meta-ads-table-body');
     tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500">Loading...</td></tr>';
@@ -1803,7 +1811,6 @@ async function fetchMetaAdsData(fromDate, toDate) {
     }
 }
 
-// --- New function to render the data into the table ---
 function renderMetaAdsTable(campaigns) {
     const tbody = document.getElementById('meta-ads-table-body');
     if (!campaigns || campaigns.length === 0) {
@@ -1813,6 +1820,7 @@ function renderMetaAdsTable(campaigns) {
 
     let html = '';
     campaigns.forEach(campaign => {
+    
         // Format numbers nicely
         const spend = parseFloat(campaign.spend || 0).toFixed(2);
         const cpc = parseFloat(campaign.cpc || 0).toFixed(2);
@@ -1831,16 +1839,26 @@ function renderMetaAdsTable(campaigns) {
     tbody.innerHTML = html;
 }
 
-// --- Optional: Function to create summary cards ---
 function renderMetaAdsSummary(campaigns) {
-    // This function would calculate totals (total spend, total clicks, etc.)
-    // and update the summary cards in the #meta-ads-summary div.
-    // You can write this based on your existing summary card logic.
-    console.log('Calculating summary for', campaigns.length, 'campaigns');
-    // ... (implementation similar to your dept-stats cards)
+    // Calculate totals
+    let totalSpend = 0, totalImpressions = 0, totalClicks = 0;
+    campaigns.forEach(c => {
+        totalSpend += parseFloat(c.spend) || 0;
+        totalImpressions += parseInt(c.impressions) || 0;
+        totalClicks += parseInt(c.clicks) || 0;
+    });
+    const avgCPC = totalClicks ? (totalSpend / totalClicks).toFixed(2) : 0;
+    const avgCTR = totalImpressions ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
+
+    const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 });
+    document.getElementById('meta-ads-summary').innerHTML = `
+        <div class="stats-card"><p class="text-gray-400 text-sm">Total Spend</p><p class="text-3xl font-bold text-white mt-2">${formatter.format(totalSpend)}</p></div>
+        <div class="stats-card"><p class="text-gray-400 text-sm">Impressions</p><p class="text-3xl font-bold text-white mt-2">${totalImpressions.toLocaleString()}</p></div>
+        <div class="stats-card"><p class="text-gray-400 text-sm">Clicks</p><p class="text-3xl font-bold text-white mt-2">${totalClicks.toLocaleString()}</p></div>
+        <div class="stats-card"><p class="text-gray-400 text-sm">Avg. CPC</p><p class="text-3xl font-bold text-white mt-2">${formatter.format(avgCPC)}</p></div>
+    `;
 }
 
-// Apply selected date range
 function applyMetaDateFilter() {
     const fromDate = document.getElementById('meta-date-from').value;
     const toDate = document.getElementById('meta-date-to').value;
@@ -1859,7 +1877,6 @@ function applyMetaDateFilter() {
     fetchMetaAdsData(fromDate, toDate);
 }
 
-// Reset to last 30 days (today and 30 days ago)
 function resetMetaDateFilter() {
     const today = new Date();
     const thirtyDaysAgo = new Date();
@@ -1936,10 +1953,9 @@ async function createCustomAudience() {
     }
 }
 
-async function syncToExistingAudience() {
-    // Similar to createCustomAudience but without creating a new audience
-    // You'd need to add an input for existing audience ID
-    // Implementation similar to above but with createNew: false
+function syncToExistingAudience() {
+    // Placeholder for future implementation
+    showToast('Sync to existing audience feature coming soon', true);
 }
 
 function getLeadsForSegment(segment) {
@@ -1959,7 +1975,6 @@ function getLeadsForSegment(segment) {
             return [];
     }
 }
-
 </script>
 </body>
 </html>
