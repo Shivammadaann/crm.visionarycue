@@ -1794,7 +1794,7 @@ async function fetchMetaAdsData(fromDate, toDate) {
 
     try {
         // Build URL with query parameters if dates are provided
-        let url = 'https://lightcoral-lark-466180.hostingersite.com/api/meta-ads';
+        let url = 'https://cornflowerblue-hippopotamus-860145.hostingersite.com/api/meta-ads';
         if (fromDate && toDate) {
             url += `?since=${fromDate}&until=${toDate}`;
         }
@@ -1927,7 +1927,7 @@ async function createCustomAudience() {
         })).filter(data => data.email || data.phone); // Only include entries with identifiers
         
         // 3. Call your backend to create the audience and upload data
-        const response = await fetch('https://lightcoral-lark-466180.hostingersite.com/api/meta/custom-audience', {
+        const response = await fetch('https://cornflowerblue-hippopotamus-860145.hostingersite.com/api/meta/custom-audience', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
