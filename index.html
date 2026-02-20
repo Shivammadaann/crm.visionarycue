@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Visionary Cue · Team Dashboards</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <!-- Favicon -->
+    <link rel="icon" href="assets/Favicon.png" type="image/x-icon">
     <style>
-        /* (all existing styles – unchanged) */
+        /* (all existing styles – unchanged, plus mobile enhancements and new card animations) */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -21,11 +23,12 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes glowPulse { 0% { box-shadow: 0 0 0 0 rgba(59,130,246,0.5); } 70% { box-shadow: 0 0 20px 10px rgba(59,130,246,0.2); } 100% { box-shadow: 0 0 0 0 rgba(59,130,246,0); } }
         .fade-in { animation: fadeIn 0.4s ease forwards; }
         .slide-up { animation: slideUp 0.4s cubic-bezier(0.2, 0.9, 0.3, 1) forwards; }
         .scale-in { animation: scaleIn 0.3s ease forwards; }
 
-        #department-dashboard, #gmeet-pane, #pipeline-pane { animation: fadeIn 0.4s ease; }
+        #department-dashboard, #gmeet-pane, #pipeline-pane, #store-dashboard, #home-analytics { animation: fadeIn 0.4s ease; }
 
         /* ===== MODAL ===== */
         .modal-overlay {
@@ -89,9 +92,28 @@
             transform: scale(1.02) translateY(-4px);
             box-shadow: 0 24px 36px -12px #000000cc;
         }
+        /* Enhanced admin cards */
+        .admin-card {
+            background: #242f3f;
+            border-radius: 28px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+            border: 2px solid transparent;
+            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.5);
+        }
         .admin-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 30px -10px #00000080;
+            transform: translateY(-12px) scale(1.02);
+            border-color: #3b82f6;
+            box-shadow: 0 25px 30px -10px #2563eb80;
+            animation: glowPulse 2s infinite;
+        }
+        .admin-card i {
+            transition: transform 0.3s ease;
+        }
+        .admin-card:hover i {
+            transform: scale(1.1);
         }
         .btn-primary, .btn-secondary {
             transition: all 0.2s ease;
@@ -125,12 +147,54 @@
         .hidden-pane { display: none; }
         .active-pane { display: block; }
 
-        .sidebar { width: 260px; background: #111827; border-right: 1px solid #1f2937; display: flex; flex-direction: column; position: fixed; height: 100vh; color: #e5e7eb; }
-        .sidebar-header { padding: 24px 20px; border-bottom: 1px solid #1f2937; }
-        .sidebar-header h2 { font-size: 1.5rem; font-weight: 700; background: linear-gradient(135deg, #60a5fa, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .nav-item { padding: 14px 24px; display: flex; align-items: center; gap: 12px; color: #9ca3af; cursor: pointer; margin: 4px 8px; border-radius: 10px; }
+        /* SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: #111827;
+            border-right: 1px solid #1f2937;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            color: #e5e7eb;
+            transition: transform 0.3s ease;
+            z-index: 500;
+        }
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sidebar-header img {
+            height: 32px;
+            width: auto;
+        }
+        .sidebar-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-item {
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #9ca3af;
+            cursor: pointer;
+            margin: 4px 8px;
+            border-radius: 10px;
+        }
         .nav-item:hover { background: #1f2937; color: white; }
-        .admin-info { margin-top: auto; padding: 20px; border-top: 1px solid #1f2937; font-size: 0.9rem; }
+        .admin-info {
+            margin-top: auto;
+            padding: 20px;
+            border-top: 1px solid #1f2937;
+            font-size: 0.9rem;
+        }
 
         .main-content {
             margin-left: 260px;
@@ -139,11 +203,66 @@
             background: #0f1525;
             min-height: 100vh;
             position: relative;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Mobile menu button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 600;
+            background: #1f2937;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                box-shadow: 2px 0 20px rgba(0,0,0,0.5);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 70px 16px 16px;
+            }
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+                border-radius: 24px;
+            }
+            .search-wrapper {
+                width: 100%;
+            }
+            .date-wrapper {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .dept-select-card .grid {
+                grid-template-columns: 1fr;
+            }
+            .admin-info {
+                padding: 16px;
+            }
+            .pipeline-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         #login-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0a0f1e; z-index: 1000; display: flex; align-items: center; justify-content: center; }
-        .login-card { background: #1a2332; border-radius: 24px; padding: 32px; width: 90%; max-width: 500px; }
-        .admin-card { background: #242f3f; border-radius: 20px; padding: 30px 20px; text-align: center; cursor: pointer; }
+        .login-card { background: #1a2332; border-radius: 48px; padding: 48px; width: 95%; max-width: 1200px; } /* larger */
 
         #dept-select-screen {
             position: absolute;
@@ -293,41 +412,90 @@
             overflow-y: auto;
             padding-right: 6px;
         }
+
+        /* Store dashboard */
+        .store-placeholder {
+            background: #1a2332;
+            border-radius: 32px;
+            padding: 60px 20px;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 1.5rem;
+            margin-top: 30px;
+        }
+        /* GMeet filter bar with two dropdowns */
+        .gmeet-filter-bar {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            background: #1a2332;
+            padding: 12px 20px;
+            border-radius: 40px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .owner-filter-select {
+            background: #242f3f;
+            border: 1px solid #374151;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+            min-width: 200px;
+        }
     </style>
 </head>
 <body>
 
+<!-- Mobile menu button -->
+<button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+</button>
+
 <div id="toast" class="toast"><i class="fas fa-info-circle mr-2 text-blue-400"></i><span id="toast-message"></span></div>
 
-<!-- Login Screen (modified to include three cards) -->
+<!-- Login Screen (enhanced larger cards) -->
 <div id="login-screen">
     <div class="login-card scale-in">
-        <h1 class="text-3xl font-bold text-center mb-6 text-white">Visionary Cue - Team Dashboard</h1>
-        <p class="text-center text-gray-400 mb-8">Select your profile</p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Admin Shivam -->
-            <div class="admin-card" onclick="showPasswordModal('Shivam', 'Admin')">
-                <div class="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <i class="fas fa-crown text-2xl text-blue-400"></i>
+        <div class="flex items-center justify-center gap-2 mb-6">
+            <img src="assets/logo.jpg" alt="VisionaryCue" style="height: 48px;">
+            <h1 class="text-4xl font-bold text-white">Visionary Cue</h1>
+        </div>
+        <p class="text-center text-gray-400 text-xl mb-10">Select your profile</p>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <!-- Admin Ankur Mishra -->
+            <div class="admin-card" onclick="showPasswordModal('Ankur Mishra', 'Admin')">
+                <div class="w-20 h-20 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-crown text-3xl text-blue-400"></i>
                 </div>
-                <h3 class="text-lg font-bold text-white">Shivam</h3>
-                <p class="text-blue-400 text-xs">Administrator</p>
+                <h3 class="text-xl font-bold text-white">Ankur Mishra</h3>
+                <p class="text-blue-400 text-sm">Administrator</p>
             </div>
             <!-- Team Member Sarthak -->
             <div class="admin-card" onclick="showPasswordModal('Sarthak', 'Team Member')">
-                <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <i class="fas fa-user-tie text-2xl text-green-400"></i>
+                <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user-tie text-3xl text-green-400"></i>
                 </div>
-                <h3 class="text-lg font-bold text-white">Sarthak</h3>
-                <p class="text-green-400 text-xs">Digital Sales</p>
+                <h3 class="text-xl font-bold text-white">Sarthak</h3>
+                <p class="text-green-400 text-sm">Digital Sales</p>
             </div>
             <!-- Team Member Aabid -->
             <div class="admin-card" onclick="showPasswordModal('Aabid', 'Team Member')">
-                <div class="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <i class="fas fa-user text-2xl text-purple-400"></i>
+                <div class="w-20 h-20 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user text-3xl text-purple-400"></i>
                 </div>
-                <h3 class="text-lg font-bold text-white">Aabid</h3>
-                <p class="text-purple-400 text-xs">Digital Sales</p>
+                <h3 class="text-xl font-bold text-white">Aabid</h3>
+                <p class="text-purple-400 text-sm">Digital Sales</p>
+            </div>
+            <!-- New User Shivam Madaan -->
+            <div class="admin-card" onclick="showPasswordModal('Shivam Madaan', 'Team Member')">
+                <div class="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-user text-3xl text-orange-400"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">Shivam Madaan</h3>
+                <p class="text-orange-400 text-sm">Head - Digital Sales</p>
             </div>
         </div>
     </div>
@@ -361,16 +529,26 @@
     </div>
 </div>
 
-<!-- Sidebar (unchanged) -->
-<div class="sidebar">
-    <div class="sidebar-header"><h2>Visionary Cue</h2><p class="text-xs text-gray-500 mt-1" id="sidebar-role-label">Admin Dashboard</p></div>
+<!-- Sidebar (reordered: vCue Store after Career Counselling, before G Meet) -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img src="assets/logo.jpg" alt="VisionaryCue">
+        <h2>Visionary Cue</h2>
+    </div>
+    <!-- New Home item – will be hidden for non‑admin -->
+    <div class="nav-item" id="nav-home" onclick="showHomeAnalytics()"><i class="fas fa-home"></i><span>Home</span></div>
     <div class="nav-item" onclick="selectDepartment('digital')"><i class="fas fa-mobile-alt"></i><span>Digital Sales</span></div>
     <div class="nav-item" onclick="selectDepartment('abroad')"><i class="fas fa-globe-asia"></i><span>Study Abroad</span></div>
-    <div class="nav-item" onclick="selectDepartment('domestic')"><i class="fas fa-home"></i><span>Domestic Sales</span></div>
+    <div class="nav-item" onclick="selectDepartment('domestic')"><i class="fas fa-home"></i><span>Career Counselling</span></div>
+    <div class="nav-item" onclick="showStore()"><i class="fas fa-store"></i><span>vCue Store</span></div>  <!-- moved here -->
     <div class="nav-item" onclick="showGMeet()"><i class="fas fa-video"></i><span>G Meet Status</span></div>
     <div class="nav-item" onclick="showPipeline()"><i class="fas fa-chart-line"></i><span>Pipeline</span></div>
     
+    <!-- Add this to your sidebar, e.g., after the Pipeline item -->
+<div class="nav-item" onclick="showMetaAds()"><i class="fas fa-chart-bar"></i><span>Meta Ads</span></div>
+
     <div class="admin-info">
+        <div id="sidebar-role-label" class="text-xs text-gray-400 mb-2"></div>
         <div id="current-user-display" class="font-medium text-white mb-1"></div>
         <div id="current-role-display" class="text-xs text-gray-500"></div>
         <button onclick="logout()" class="mt-3 text-sm text-red-400 hover:text-red-300"><i class="fas fa-sign-out-alt mr-1"></i> Logout</button>
@@ -378,7 +556,7 @@
 </div>
 
 <!-- Main Content Area -->
-<div class="main-content">
+<div class="main-content" id="mainContent">
     <!-- Department selection overlay (only for admin) -->
     <div id="dept-select-screen">
         <div class="dept-select-card scale-in">
@@ -397,14 +575,98 @@
                 </div>
                 <div class="dept-option" onclick="selectDepartment('domestic')">
                     <i class="fas fa-home text-yellow-400"></i>
-                    <h3 class="text-white">Domestic Sales</h3>
+                    <h3 class="text-white">Career Counselling</h3>
                     <p>Local programs & coaching</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Department Dashboard (used by both admin and team members) -->
+<!-- New Meta Ads Pane -->
+<div id="meta-ads-pane" class="hidden-pane">
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-white">Meta Ads Performance</h1>
+            <p class="text-gray-400 text-sm mt-1">Campaign data from the last 30 days</p>
+        </div>
+    </div>
+
+<!-- Inside meta-ads-pane, after the header and before summary cards -->
+<div class="filter-bar">
+    <div class="date-wrapper">
+        <label for="meta-date-from"><i class="far fa-calendar-alt mr-1"></i>From:</label>
+        <input type="date" id="meta-date-from">
+    </div>
+    <div class="date-wrapper">
+        <label for="meta-date-to"><i class="far fa-calendar-alt mr-1"></i>To:</label>
+        <input type="date" id="meta-date-to">
+    </div>
+    <button class="btn btn-primary" onclick="applyMetaDateFilter()">Apply</button>
+    <button class="clear-btn" onclick="resetMetaDateFilter()">Reset to Last 30 Days</button>
+</div>
+<!-- Add this inside your meta-ads-pane, after the date filter -->
+<div class="bg-[#1a2332] rounded-2xl p-6 mb-8">
+    <h2 class="text-xl font-bold text-white mb-4">Create Custom Audience from CRM</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Audience Selection -->
+        <div>
+            <label class="block text-gray-400 text-sm mb-2">Select Leads to Include</label>
+            <select id="audience-segment" class="input-field">
+                <option value="hot">Hot Leads Only</option>
+                <option value="warm">Warm Leads Only</option>
+                <option value="cold">Cold Leads Only</option>
+                <option value="all">All Digital Sales Leads</option>
+                <option value="store">Store Inquiries</option>
+            </select>
+        </div>
+        
+        <!-- Audience Name -->
+        <div>
+            <label class="block text-gray-400 text-sm mb-2">Audience Name</label>
+            <input type="text" id="audience-name" class="input-field" placeholder="e.g., Hot Leads Feb 2026">
+        </div>
+    </div>
+    
+    <div class="flex gap-3 mt-4">
+        <button class="btn btn-primary" onclick="createCustomAudience()">
+            <i class="fas fa-users mr-2"></i>Create Custom Audience
+        </button>
+        <button class="btn btn-secondary" onclick="syncToExistingAudience()">
+            <i class="fas fa-sync mr-2"></i>Sync to Existing Audience
+        </button>
+    </div>
+    
+    <!-- Status message area -->
+    <div id="audience-status" class="mt-4 text-sm hidden"></div>
+</div>
+    <!-- Placeholder for Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" id="meta-ads-summary">
+        <!-- Stats will be injected here by JavaScript -->
+    </div>
+
+    <!-- Table for Campaign Data -->
+    <div class="table-container">
+        <table id="meta-ads-table">
+            <thead>
+                <tr>
+                    <th>Campaign</th>
+                    <th>Impressions</th>
+                    <th>Clicks</th>
+                    <th>Spend (₹)</th>
+                    <th>CPC (₹)</th>
+                    <th>CTR (%)</th>
+                    <th>Date Range</th>
+                </tr>
+            </thead>
+            <tbody id="meta-ads-table-body">
+                <!-- Data will be injected here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    <!-- Department Dashboard (for digital/abroad/domestic) -->
     <div id="department-dashboard" class="hidden-pane">
         <div class="flex justify-between items-center mb-4">
             <div>
@@ -455,14 +717,35 @@
         </div>
     </div>
 
-    <!-- G Meet Status Pane -->
+    <!-- G Meet Status Pane (with owner filter and department filter) -->
     <div id="gmeet-pane" class="hidden-pane">
         <div class="flex justify-between items-center mb-8">
             <div><h1 class="text-3xl font-bold text-white">G Meet Status</h1><p class="text-gray-400 text-sm mt-1">Track all Google Meet sessions</p></div>
         </div>
+        <!-- Filter bar with two dropdowns -->
+        <div class="gmeet-filter-bar">
+            <i class="fas fa-filter text-blue-400"></i>
+            <select id="gmeetOwnerFilter" class="owner-filter-select" onchange="filterGMeets()">
+                <option value="All">All Owners</option>
+            </select>
+            <select id="gmeetDeptFilter" class="owner-filter-select" onchange="filterGMeets()">
+                <option value="All">All Departments</option>
+            </select>
+        </div>
         <div class="table-container">
             <table>
-                <thead><tr><th>Lead Owner</th><th>Lead Name</th><th>G Meet Date</th><th>Agenda</th><th>Outcome</th><th>Proposal Shared</th><th>Amount Pitched</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Lead Owner</th>
+                        <th>Department</th>   <!-- new column -->
+                        <th>Lead Name</th>
+                        <th>G Meet Date</th>
+                        <th>Agenda</th>
+                        <th>Outcome</th>
+                        <th>Proposal Shared</th>
+                        <th>Amount Pitched</th>
+                    </tr>
+                </thead>
                 <tbody id="gmeet-table-body"></tbody>
             </table>
         </div>
@@ -493,57 +776,143 @@
             </div>
         </div>
     </div>
+
+    <!-- vCue Store Dashboard (new) -->
+    <div id="store-dashboard" class="hidden-pane">
+        <div class="flex justify-between items-center mb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-white">vCue Store Leads</h1>
+                <p class="text-gray-400 text-sm mt-1"><i class="fas fa-google mr-1"></i> VCue Store Inquiries</p>
+            </div>
+            <button onclick="exportStoreToExcel()" class="btn btn-primary"><i class="fas fa-download mr-2"></i>Export</button>
+        </div>
+
+        <div class="filter-bar">
+            <div class="search-wrapper">
+                <i class="fas fa-search mr-2"></i>
+                <input type="text" id="storeSearchInput" placeholder="Search store leads..." onkeyup="applyStoreFilters()">
+            </div>
+            <div class="date-wrapper">
+                <label for="storeDateFilter"><i class="far fa-calendar-alt mr-1"></i>Added after:</label>
+                <input type="date" id="storeDateFilter" onchange="applyStoreFilters()">
+            </div>
+            <button class="clear-btn" onclick="clearStoreFilters()"><i class="fas fa-times mr-1"></i>Clear all</button>
+        </div>
+
+        <div id="store-active-filter-chip" class="mb-3 text-sm"></div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" id="store-stats"></div>
+
+        <div class="table-container">
+            <table id="store-table">
+                <colgroup><col class="col-name"><col class="col-email"><col class="col-phone"><col class="col-source"><col class="col-budget"><col class="col-owner"><col class="col-stage"><col class="col-remark"></colgroup>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Source</th>
+                        <th>Budget</th>
+                        <th>Lead Owner</th>
+                        <th>Stage</th>
+                        <th>Remark</th>
+                    </tr>
+                </thead>
+                <tbody id="store-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- New Home Analytics Pane (only for Admin) -->
+    <div id="home-analytics" class="hidden-pane">
+        <div class="flex justify-between items-center mb-8">
+            <div><h1 class="text-3xl font-bold text-white">Analytics Dashboard</h1><p class="text-gray-400 text-sm mt-1">Overview of all team members</p></div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" id="home-summary-stats"></div>
+
+        <!-- Per‑User Table -->
+        <div class="table-container">
+            <table id="home-analytics-table">
+                <thead>
+                    <tr>
+                        <th>Lead Owner</th>
+                        <th>Total Leads</th>
+                        <th>Hot</th>
+                        <th>Warm</th>
+                        <th>Cold</th>
+                        <th>Pipeline Value</th>
+                        <th>G Meets</th>
+                    </tr>
+                </thead>
+                <tbody id="home-table-body"></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
-// ==================== CONFIGURATION – REPLACE WITH YOUR PUBLISHED CSV URLs ====================
-// Department sheets (used by admin)
-const DIGITAL_SHEET_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR5ZbIinS1M68n2Sq3GQ0pjYn1ufVxFfjXp1OAOP8fSuhXd_mBmuFsRwMTi1b__Z6UXph5Ei7a0HLWB/pub?output=csv';   // Digital Sales (contains leads for multiple owners)
-const ABROAD_SHEET_URL    = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubSCIMcHOg-zY5ehV98ivA-kyBsj2lMQ_wGlpEuoP3KJ5WoN0_AZ76IzQMLRg1yr07c5unl2avzVA/pub?output=csv';   // Study Abroad
-const DOMESTIC_SHEET_URL  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQtWNEIwdBAgG4bTjr1Ohq8VCXDLeP8e2eRadjkOML19JlofSCR1x0vor0gqBYs5CeN9etAOjgj-Cbl/pub?output=csv';   // Domestic Sales
-// Team member dedicated sheets (must contain leads with owner column = Sarthak / Aabid)
-const SARTHAK_SHEET_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRcCJfUebUON_9-Qk-RvwW6FlvgMKvzn_BKdNSpuH3gNvB4CyZn_Y1P2foLDWYcgoJcb5-BCmvLqILp/pub?output=csv';   // Sarthak's personal leads
-const AABID_SHEET_URL     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBFoluGkU2pU5zmlrtjOAN6xZYV4SpAFMMbz4_7QS561F5PnxdaltoVc1msQLmfwfPQ4uk1s-eNATR/pub?output=csv';   // Aabit's personal leads
-// Shared GMeet sheet (contains meetings for all owners)
-const GMEET_SHEET_URL     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSwKz7KWKSuhpmcj3uMf77fRV-wI7WDJMmHp9rWj76Ua3AKFB6lB8FCjdKugNpJc9WSk8WgxboRcVv7/pub?output=csv';   // G Meet Status
-// ==============================================================================================
+//==================== CONFIGURATION ====================
+const DIGITAL_SHEET_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR5ZbIinS1M68n2Sq3GQ0pjYn1ufVxFfjXp1OAOP8fSuhXd_mBmuFsRwMTi1b__Z6UXph5Ei7a0HLWB/pub?output=csv';
+const ABROAD_SHEET_URL    = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQubSCIMcHOg-zY5ehV98ivA-kyBsj2lMQ_wGlpEuoP3KJ5WoN0_AZ76IzQMLRg1yr07c5unl2avzVA/pub?output=csv';
+const DOMESTIC_SHEET_URL  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQtWNEIwdBAgG4bTjr1Ohq8VCXDLeP8e2eRadjkOML19JlofSCR1x0vor0gqBYs5CeN9etAOjgj-Cbl/pub?output=csv';
+const SARTHAK_SHEET_URL   = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRcCJfUebUON_9-Qk-RvwW6FlvgMKvzn_BKdNSpuH3gNvB4CyZn_Y1P2foLDWYcgoJcb5-BCmvLqILp/pub?output=csv';
+const AABID_SHEET_URL     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSBFoluGkU2pU5zmlrtjOAN6xZYV4SpAFMMbz4_7QS561F5PnxdaltoVc1msQLmfwfPQ4uk1s-eNATR/pub?output=csv';
+const SHIVAM_MADAAN_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS8b5jAgHNBoMfVTdS3W7ibzuUL2BAoGZHOy6cbudhUUyLMPEfOz87Tn4KF2bl_-irqvo2qxq-L23Yt/pub?output=csv'; 
+const STORE_SHEET_URL     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vReFuKTklLYYp4Il_SS2nmj3omo20_AU8AjELNpscGJgTpkhlQbPTiS4stq5LwTufQRyILc6R3k5bZm/pub?output=csv';
+const GMEET_SHEET_URL     = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSwKz7KWKSuhpmcj3uMf77fRV-wI7WDJMmHp9rWj76Ua3AKFB6lB8FCjdKugNpJc9WSk8WgxboRcVv7/pub?output=csv';
 
-// User credentials: passwords (in production use secure auth)
+// User credentials
 const USERS = {
-    'Shivam': { password: 'shivam123', role: 'Admin' },
+    'Ankur Mishra': { password: 'ankur123', role: 'Admin' },
     'Sarthak': { password: 'sarthak123', role: 'Team Member' },
-    'Aabit': { password: 'aabid123', role: 'Team Member' }
+    'Aabid': { password: 'aabid123', role: 'Team Member' },
+    'Shivam Madaan': { password: 'shivam123', role: 'Team Member' }
 };
 
 let currentUser = null, currentRole = null;
-let leads = [];               // will hold all leads from loaded sheets
-let gmeetMeetings = [];       // will hold all G Meet entries
+let leads = [];               // all leads from dept sheets
+let storeLeads = [];          // store leads
+let gmeetMeetings = [];       // all G Meet entries
 let activeDepartment = null;
 
-// Filter state
+// Filter state for dept dashboard
 let searchTerm = '';
 let filterDate = null;
 let columnFilters = { owner: null, source: null, stage: null };
 let openDropdown = null;
 
-// Sample fallback data (used if sheets fail to load)
+// Filter state for store dashboard
+let storeSearchTerm = '';
+let storeFilterDate = null;
+
+// Sample fallback data (updated with department for GMeet)
 const sampleLeads = [
-    { name:'Rahul Verma', email:'rahul@email.com', phone:'9812345678', source:'Instagram', budget:'₹50,000', owner:'Shivam', stage:'Hot', 
+    { name:'Rahul Verma', email:'rahul@email.com', phone:'9812345678', source:'Instagram', budget:'₹50,000', owner:'Ankur Mishra', stage:'Hot', 
       remark:`12 feb\nright now occupied and wants to connect on 14 feb at 11 am..\nfeb 16 right now travelling so wants to connect after 1 week`, department:'digital', dateAdded:'2025-02-12' },
     { name:'Priya Singh', email:'priya@email.com', phone:'8822334455', source:'LinkedIn', budget:'₹25,000', owner:'Sarthak', stage:'Warm', 
       remark:`Called twice, no response. Will try again Monday.`, department:'digital', dateAdded:'2025-02-10' },
-    { name:'John Doe', email:'john@email.com', phone:'7766554433', source:'Website', budget:'₹1,00,000', owner:'Aabit', stage:'Hot', 
+    { name:'John Doe', email:'john@email.com', phone:'7766554433', source:'Website', budget:'₹1,00,000', owner:'Aabid', stage:'Hot', 
       remark:`Interested in contract, asked for detailed proposal by Friday.`, department:'domestic', dateAdded:'2025-02-14' },
-    { name:'Alex Kumar', email:'alex@email.com', phone:'9988776655', source:'Referral', budget:'₹15,000', owner:'Shivam', stage:'Cold', 
-      remark:`Not interested right now – call back in Q2.`, department:'abroad', dateAdded:'2025-02-01' }
+    { name:'Alex Kumar', email:'alex@email.com', phone:'9988776655', source:'Referral', budget:'₹15,000', owner:'Shivam Madaan', stage:'Cold', 
+      remark:`Not interested right now – call back in Q2.`, department:'abroad', dateAdded:'2025-02-01' },
+    { name:'Neha Sharma', email:'neha@email.com', phone:'8877665544', source:'Facebook', budget:'₹75,000', owner:'Shivam Madaan', stage:'Warm',
+      remark:`Follow up next week.`, department:'digital', dateAdded:'2025-02-18' }
+];
+const sampleStoreLeads = [
+    { name:'Rohit Mehra', email:'rohit@email.com', phone:'9988771122', source:'Website', budget:'₹12,000', owner:'Ankur Mishra', stage:'Warm', remark:'Interested in product X', dateAdded:'2025-02-20' },
+    { name:'Anjali Gupta', email:'anjali@email.com', phone:'9876543210', source:'Instagram', budget:'₹8,500', owner:'Sarthak', stage:'Hot', remark:'Asked for demo', dateAdded:'2025-02-19' },
+    { name:'Vikram Singh', email:'vikram@email.com', phone:'8765432109', source:'Referral', budget:'₹22,000', owner:'Shivam Madaan', stage:'Cold', remark:'Not now', dateAdded:'2025-02-18' }
 ];
 const sampleGMeets = [
-    { leadOwner:'Shivam', leadName:'Rahul Verma', meetDate:'2025-02-25 11:00 AM', agenda:'SEO Discussion', outcome:'Interested', proposalShared:'Yes', amountPitched:'₹50,000' },
-    { leadOwner:'Sarthak', leadName:'Priya Singh', meetDate:'2025-02-26 03:00 PM', agenda:'Social Media', outcome:'Decide next week', proposalShared:'No', amountPitched:'₹25,000' },
-    { leadOwner:'Aabit', leadName:'John Doe', meetDate:'2025-02-27 02:00 PM', agenda:'Contract', outcome:'Agreed', proposalShared:'Yes', amountPitched:'₹1,00,000' }
+    { leadOwner:'Ankur Mishra', leadName:'Rahul Verma', meetDate:'2025-02-25 11:00 AM', agenda:'SEO Discussion', outcome:'Interested', proposalShared:'Yes', amountPitched:'₹50,000', department:'Digital Sales' },
+    { leadOwner:'Sarthak', leadName:'Priya Singh', meetDate:'2025-02-26 03:00 PM', agenda:'Social Media', outcome:'Decide next week', proposalShared:'No', amountPitched:'₹25,000', department:'Digital Sales' },
+    { leadOwner:'Aabid', leadName:'John Doe', meetDate:'2025-02-27 02:00 PM', agenda:'Contract', outcome:'Agreed', proposalShared:'Yes', amountPitched:'₹1,00,000', department:'Career Counselling' },
+    { leadOwner:'Shivam Madaan', leadName:'Neha Sharma', meetDate:'2025-02-28 10:00 AM', agenda:'Product Demo', outcome:'Positive', proposalShared:'Yes', amountPitched:'₹75,000', department:'Digital Sales' }
 ];
 
-// Helper: show toast messages
+// Helper functions
 function showToast(msg, err) {
     const t = document.getElementById('toast'), m = document.getElementById('toast-message');
     m.textContent = msg; t.style.borderLeftColor = err ? '#ef4444' : '#3b82f6';
@@ -579,62 +948,94 @@ function login(u, r) {
     document.getElementById('welcome-user').textContent = u;
     document.getElementById('sidebar-role-label').innerText = r === 'Admin' ? 'Admin Dashboard' : `${u}'s Dashboard`;
 
+    // Show/hide Home nav item based on role
+    const homeNav = document.getElementById('nav-home');
     if (r === 'Admin') {
-        // Admin sees department selector
+        homeNav.style.display = 'flex';   // or 'block' – it's a flex item
+    } else {
+        homeNav.style.display = 'none';
+    }
+
+    if (r === 'Admin') {
+        // Show department selection screen (but we might want to show Home first?)
+        // We'll keep existing behavior: show dept select screen. Admin can click Home from sidebar.
         document.getElementById('dept-select-screen').style.display = 'flex';
         document.getElementById('department-dashboard').classList.add('hidden-pane');
     } else {
-        // Team member: directly show Digital Sales dashboard, forced owner filter
         document.getElementById('dept-select-screen').style.display = 'none';
         document.getElementById('department-dashboard').classList.remove('hidden-pane');
-        activeDepartment = 'digital'; // they belong to digital sales
-        columnFilters.owner = currentUser; // enforce owner filter
-        // update title
+        activeDepartment = 'digital';
+        columnFilters.owner = currentUser;
         document.getElementById('dept-dashboard-title').innerHTML = `👤 ${u}'s Leads (Digital Sales) <span class="dept-indicator">DIGITAL</span>`;
     }
+    // Hide all panes initially, then show appropriate one
     document.getElementById('gmeet-pane').classList.add('hidden-pane');
     document.getElementById('pipeline-pane').classList.add('hidden-pane');
+    document.getElementById('store-dashboard').classList.add('hidden-pane');
+    document.getElementById('home-analytics').classList.add('hidden-pane');
     
-    loadAllSheets();  // fetch sheets based on user
+    loadAllSheets();
     showToast(`Welcome, ${u}!`);
 }
 
 function logout() { location.reload(); }
 
-// ========== LOAD SHEETS BASED ON USER ==========
+// Mobile sidebar toggle
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+}
+
+document.getElementById('mainContent').addEventListener('click', function() {
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebar').classList.remove('open');
+    }
+});
+
+// ========== LOAD SHEETS ==========
 function loadAllSheets() {
     let leadSheetPromises = [];
+    let storeSheetPromise = fetchCSV(STORE_SHEET_URL, 'store').then(storeData => storeLeads = storeData).catch(() => storeLeads = sampleStoreLeads);
     let gmeetPromise = fetchCSV(GMEET_SHEET_URL, 'gmeet').then(meetings => gmeetMeetings = meetings).catch(() => gmeetMeetings = sampleGMeets);
 
     if (currentRole === 'Admin') {
-        // Admin loads all department sheets + team member sheets
         leadSheetPromises = [
             fetchCSV(DIGITAL_SHEET_URL, 'digital').catch(() => []),
             fetchCSV(ABROAD_SHEET_URL, 'abroad').catch(() => []),
             fetchCSV(DOMESTIC_SHEET_URL, 'domestic').catch(() => []),
-            fetchCSV(SARTHAK_SHEET_URL, 'digital').catch(() => []),  // assign department digital
-            fetchCSV(AABID_SHEET_URL, 'digital').catch(() => [])     // assign department digital
+            fetchCSV(SARTHAK_SHEET_URL, 'digital').catch(() => []),
+            fetchCSV(AABID_SHEET_URL, 'digital').catch(() => []),
+            fetchCSV(SHIVAM_MADAAN_SHEET_URL, 'digital').catch(() => [])
         ];
     } else if (currentUser === 'Sarthak') {
         leadSheetPromises = [ fetchCSV(SARTHAK_SHEET_URL, 'digital').catch(() => []) ];
     } else if (currentUser === 'Aabid') {
-        leadSheetPromises = [ fetchCSV(AABIT_SHEET_URL, 'digital').catch(() => []) ];
+        leadSheetPromises = [ fetchCSV(AABID_SHEET_URL, 'digital').catch(() => []) ];
+    } else if (currentUser === 'Shivam Madaan') {
+        leadSheetPromises = [ fetchCSV(SHIVAM_MADAAN_SHEET_URL, 'digital').catch(() => []) ];
     }
 
-    Promise.all(leadSheetPromises.concat(gmeetPromise))
+    Promise.all(leadSheetPromises.concat([storeSheetPromise, gmeetPromise]))
         .then(results => {
-            // Flatten leads from all fetched sheets
             leads = [];
-            for (let i = 0; i < results.length - 1; i++) {
+            for (let i = 0; i < results.length - 2; i++) {
                 if (Array.isArray(results[i])) leads.push(...results[i]);
             }
-            // If no leads, fallback to samples
             if (leads.length === 0) leads = JSON.parse(JSON.stringify(sampleLeads));
-            // For team members, ensure owner matches (sheet might have other owners, but we filter later)
+            
+            // Ensure storeLeads is set
+            if (storeLeads.length === 0) storeLeads = JSON.parse(JSON.stringify(sampleStoreLeads));
             
             if (activeDepartment) {
                 populateDropdowns();
                 updateStatsAndTable();
+            }
+            populateGMeetOwnerFilter();
+            populateGMeetDeptFilter();
+            renderGMeetTable();
+            updateStoreDashboard();
+            // Render home analytics if admin and home pane is visible (or just compute data)
+            if (currentRole === 'Admin') {
+                renderHomeAnalytics();
             }
             showToast('Sheets loaded');
         })
@@ -642,10 +1043,18 @@ function loadAllSheets() {
             console.error(err);
             showToast('Using sample data', true);
             leads = JSON.parse(JSON.stringify(sampleLeads));
+            storeLeads = JSON.parse(JSON.stringify(sampleStoreLeads));
             gmeetMeetings = JSON.parse(JSON.stringify(sampleGMeets));
             if (activeDepartment) {
                 populateDropdowns();
                 updateStatsAndTable();
+            }
+            populateGMeetOwnerFilter();
+            populateGMeetDeptFilter();
+            renderGMeetTable();
+            updateStoreDashboard();
+            if (currentRole === 'Admin') {
+                renderHomeAnalytics();
             }
         });
 }
@@ -653,8 +1062,7 @@ function loadAllSheets() {
 // Helper to fetch a single CSV and parse it
 function fetchCSV(url, department) {
     return new Promise((resolve, reject) => {
-        if (!url || url.includes('2PACX-...')) {
-            // If placeholder, return empty to use sample
+        if (!url || url.includes('placeholder') || url.includes('NewPlaceholder')) {
             return resolve([]);
         }
         Papa.parse(url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(), {
@@ -671,9 +1079,23 @@ function fetchCSV(url, department) {
                             agenda: row['Agenda'] || row['agenda'] || '',
                             outcome: row['Outcome'] || row['outcome'] || '',
                             proposalShared: row['Proposal Shared'] || row['proposal shared'] || 'No',
-                            amountPitched: row['Amount Pitched'] || row['amount pitched'] || '₹0'
+                            amountPitched: row['Amount Pitched'] || row['amount pitched'] || '₹0',
+                            department: row['Department'] || row['department'] || 'General'   // new field
                         }));
                         resolve(meetings);
+                    } else if (department === 'store') {
+                        const storeData = result.data.map(row => ({
+                            name: row['Name'] || row['name'] || 'Unnamed',
+                            email: row['Email'] || row['email'] || '-',
+                            phone: row['Phone'] || row['phone'] || '-',
+                            source: row['Source'] || row['source'] || 'Direct',
+                            budget: row['Budget'] || row['budget'] || '-',
+                            owner: row['Lead Owner'] || row['lead owner'] || 'Unassigned',
+                            stage: row['Stage'] || row['stage'] || 'New',
+                            remark: row['Remark'] || row['remark'] || 'No remarks',
+                            dateAdded: row['Date Added'] || row['date added'] || new Date().toISOString().slice(0,10)
+                        }));
+                        resolve(storeData);
                     } else {
                         const leadsFromSheet = result.data.map(row => ({
                             name: row['Name'] || row['name'] || 'Unnamed',
@@ -684,7 +1106,7 @@ function fetchCSV(url, department) {
                             owner: row['Lead Owner'] || row['lead owner'] || 'Unassigned',
                             stage: row['Stage'] || row['stage'] || 'New',
                             remark: row['Remark'] || row['remark'] || 'No remarks',
-                            department: department,   // 'digital', 'abroad', 'domestic'
+                            department: department,
                             dateAdded: row['Date Added'] || row['date added'] || new Date().toISOString().slice(0,10)
                         }));
                         resolve(leadsFromSheet);
@@ -700,12 +1122,10 @@ function fetchCSV(url, department) {
     });
 }
 
-// ========== FILTERING & UI ==========
-
+// ========== DEPARTMENT DASHBOARD FUNCTIONS (unchanged) ==========
 function populateDropdowns() {
     if (!activeDepartment) return;
     let deptLeads = leads.filter(l => l.department === activeDepartment);
-    // For team members, further restrict to their owner (though column filter already does)
     
     const sources = [...new Set(deptLeads.map(l => l.source).filter(Boolean))].sort();
     const owners = [...new Set(deptLeads.map(l => l.owner).filter(Boolean))].sort();
@@ -727,7 +1147,6 @@ function renderDropdown(field, values) {
 }
 
 function toggleDropdown(field) {
-    // Team members cannot change owner filter
     if (currentRole === 'Team Member' && field === 'owner') {
         showToast('You can only view your own leads', true);
         return;
@@ -767,12 +1186,11 @@ function selectDepartment(dept) {
         return;
     }
     activeDepartment = dept;
-    // Reset filters but preserve owner for team members
     searchTerm = ''; filterDate = null; 
     if (currentRole !== 'Team Member') {
         columnFilters = { owner: null, source: null, stage: null };
     } else {
-        columnFilters = { owner: currentUser, source: null, stage: null }; // owner forced
+        columnFilters = { owner: currentUser, source: null, stage: null };
     }
     document.getElementById('searchInput').value = '';
     document.getElementById('dateFilter').value = '';
@@ -781,8 +1199,10 @@ function selectDepartment(dept) {
     document.getElementById('department-dashboard').classList.remove('hidden-pane');
     document.getElementById('gmeet-pane').classList.add('hidden-pane');
     document.getElementById('pipeline-pane').classList.add('hidden-pane');
+    document.getElementById('store-dashboard').classList.add('hidden-pane');
+    document.getElementById('home-analytics').classList.add('hidden-pane');
     
-    const titles = { digital:'Digital Sales', abroad:'Study Abroad', domestic:'Domestic Sales' };
+    const titles = { digital:'Digital Sales', abroad:'Study Abroad', domestic:'Career Counselling' };
     let title = titles[dept];
     if (currentRole === 'Team Member') title = `👤 ${currentUser}'s Leads (Digital Sales)`;
     document.getElementById('dept-dashboard-title').innerHTML = title + ' <span class="dept-indicator">' + dept.toUpperCase() + '</span>';
@@ -794,36 +1214,6 @@ function selectDepartment(dept) {
     
     document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
     if (event && event.currentTarget) event.currentTarget.classList.add('active');
-}
-
-function showGMeet() {
-    activeDepartment = null;
-    document.getElementById('dept-select-screen').style.display = 'none';
-    document.getElementById('department-dashboard').classList.add('hidden-pane');
-    document.getElementById('gmeet-pane').classList.remove('hidden-pane');
-    document.getElementById('pipeline-pane').classList.add('hidden-pane');
-    
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(item => {
-        if (item.innerText.includes('G Meet')) item.classList.add('active');
-    });
-    
-    renderGMeetTable();
-}
-
-function showPipeline() {
-    activeDepartment = null;
-    document.getElementById('dept-select-screen').style.display = 'none';
-    document.getElementById('department-dashboard').classList.add('hidden-pane');
-    document.getElementById('gmeet-pane').classList.add('hidden-pane');
-    document.getElementById('pipeline-pane').classList.remove('hidden-pane');
-    
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(item => {
-        if (item.innerText.includes('Pipeline')) item.classList.add('active');
-    });
-    
-    renderPipeline();
 }
 
 function filterLeads() {
@@ -848,7 +1238,6 @@ function filterLeads() {
         });
     }
 
-    // Apply column filters, but for team members owner is forced
     if (columnFilters.owner) filtered = filtered.filter(l => l.owner === columnFilters.owner);
     if (columnFilters.source) filtered = filtered.filter(l => l.source === columnFilters.source);
     if (columnFilters.stage) filtered = filtered.filter(l => l.stage === columnFilters.stage);
@@ -872,7 +1261,7 @@ function updateStatsAndTable() {
 
     let chipHtml = '';
     if (columnFilters.owner && currentRole !== 'Team Member') chipHtml += `<span class="filter-chip"><i class="fas fa-user"></i> Owner: ${columnFilters.owner} <i class="fas fa-times-circle ml-1 cursor-pointer" onclick="clearFilter('owner')"></i></span>`;
-    else if (columnFilters.owner && currentRole === 'Team Member') chipHtml += `<span class="filter-chip bg-blue-800"><i class="fas fa-user"></i> My Leads (${columnFilters.owner}) </span>`; // non-removable
+    else if (columnFilters.owner && currentRole === 'Team Member') chipHtml += `<span class="filter-chip bg-blue-800"><i class="fas fa-user"></i> My Leads (${columnFilters.owner}) </span>`;
     if (columnFilters.source) chipHtml += `<span class="filter-chip"><i class="fas fa-tag"></i> Source: ${columnFilters.source} <i class="fas fa-times-circle ml-1 cursor-pointer" onclick="clearFilter('source')"></i></span>`;
     if (columnFilters.stage) chipHtml += `<span class="filter-chip"><i class="fas fa-chart-simple"></i> Stage: ${columnFilters.stage} <i class="fas fa-times-circle ml-1 cursor-pointer" onclick="clearFilter('stage')"></i></span>`;
     document.getElementById('active-filter-chip').innerHTML = chipHtml;
@@ -943,7 +1332,7 @@ function showLeadPopup(lead) {
         <span class="detail-label">Budget</span><span class="detail-value">${lead.budget}</span>
         <span class="detail-label">Owner</span><span class="detail-value">${lead.owner}</span>
         <span class="detail-label">Stage</span><span class="detail-value"><span class="status-badge ${lead.stage==='Hot'?'status-hot':lead.stage==='Warm'?'status-warm':'status-cold'}">${lead.stage}</span></span>
-        <span class="detail-label">Dept</span><span class="detail-value">${lead.department}</span>
+        <span class="detail-label">Dept</span><span class="detail-value">${lead.department || 'Store'}</span>
         <span class="detail-label">Date added</span><span class="detail-value">${lead.dateAdded || '—'}</span>
     `;
 
@@ -976,7 +1365,6 @@ function applyFilters() {
     searchTerm = document.getElementById('searchInput').value;
     const dateStr = document.getElementById('dateFilter').value;
     filterDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
-    // For team members, ensure owner filter is always applied
     if (currentRole === 'Team Member') {
         columnFilters.owner = currentUser;
     }
@@ -997,29 +1385,67 @@ function clearFilters() {
     populateDropdowns();
 }
 
+// ========== GMEET FUNCTIONS with Owner and Department Filter ==========
+function populateGMeetOwnerFilter() {
+    const owners = [...new Set(gmeetMeetings.map(m => m.leadOwner).filter(Boolean))].sort();
+    const select = document.getElementById('gmeetOwnerFilter');
+    let options = '<option value="All">All Owners</option>';
+    owners.forEach(owner => {
+        options += `<option value="${owner}">${owner}</option>`;
+    });
+    select.innerHTML = options;
+}
+
+function populateGMeetDeptFilter() {
+    const depts = [...new Set(gmeetMeetings.map(m => m.department).filter(Boolean))].sort();
+    const select = document.getElementById('gmeetDeptFilter');
+    let options = '<option value="All">All Departments</option>';
+    depts.forEach(dept => {
+        options += `<option value="${dept}">${dept}</option>`;
+    });
+    select.innerHTML = options;
+}
+
+function filterGMeets() {
+    renderGMeetTable();
+}
+
 function renderGMeetTable() {
     let meetings = gmeetMeetings;
-    // Filter for team members
+    const selectedOwner = document.getElementById('gmeetOwnerFilter').value;
+    const selectedDept = document.getElementById('gmeetDeptFilter').value;
+    
+    if (selectedOwner !== 'All') {
+        meetings = meetings.filter(m => m.leadOwner === selectedOwner);
+    }
+    if (selectedDept !== 'All') {
+        meetings = meetings.filter(m => m.department === selectedDept);
+    }
     if (currentRole === 'Team Member') {
         meetings = meetings.filter(m => m.leadOwner === currentUser);
     }
     const tbody = document.getElementById('gmeet-table-body');
     tbody.innerHTML = '';
     if (!meetings.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500">No meetings scheduled</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-500">No meetings scheduled</td></tr>';
         return;
     }
     meetings.forEach(m => {
         const proposalClass = m.proposalShared === 'Yes' ? 'proposal-yes' : 'proposal-no';
         tbody.innerHTML += `<tr>
-            <td>${m.leadOwner}</td><td>${m.leadName}</td><td>${m.meetDate}</td>
-            <td>${m.agenda}</td><td>${m.outcome}</td>
+            <td>${m.leadOwner}</td>
+            <td>${m.department || '—'}</td>
+            <td>${m.leadName}</td>
+            <td>${m.meetDate}</td>
+            <td>${m.agenda}</td>
+            <td>${m.outcome}</td>
             <td><span class="proposal-badge ${proposalClass}">${m.proposalShared}</span></td>
             <td>${m.amountPitched}</td>
         </tr>`;
     });
 }
 
+// ========== PIPELINE FUNCTIONS (unchanged) ==========
 function renderPipeline() {
     let meetings = gmeetMeetings;
     if (currentRole === 'Team Member') {
@@ -1059,8 +1485,241 @@ function renderPipeline() {
     });
 }
 
+// ========== STORE DASHBOARD FUNCTIONS ==========
+function showStore() {
+    activeDepartment = null;
+    document.getElementById('dept-select-screen').style.display = 'none';
+    document.getElementById('department-dashboard').classList.add('hidden-pane');
+    document.getElementById('gmeet-pane').classList.add('hidden-pane');
+    document.getElementById('pipeline-pane').classList.add('hidden-pane');
+    document.getElementById('store-dashboard').classList.remove('hidden-pane');
+    document.getElementById('home-analytics').classList.add('hidden-pane');
+    
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(item => {
+        if (item.innerText.includes('vCue Store')) item.classList.add('active');
+    });
+    
+    updateStoreDashboard();
+}
+
+function filterStoreLeads() {
+    let filtered = storeLeads;
+
+    if (storeSearchTerm.trim() !== '') {
+        const term = storeSearchTerm.toLowerCase();
+        filtered = filtered.filter(l => 
+            l.name.toLowerCase().includes(term) ||
+            l.phone.includes(term) ||
+            l.email.toLowerCase().includes(term)
+        );
+    }
+
+    if (storeFilterDate) {
+        const filterTime = storeFilterDate.getTime();
+        filtered = filtered.filter(l => {
+            if (!l.dateAdded) return true;
+            const leadTime = new Date(l.dateAdded).getTime();
+            return leadTime >= filterTime;
+        });
+    }
+
+    // Optionally apply team member owner filter if needed
+    if (currentRole === 'Team Member') {
+        filtered = filtered.filter(l => l.owner === currentUser);
+    }
+
+    return filtered;
+}
+
+function updateStoreDashboard() {
+    const filtered = filterStoreLeads();
+    const total = filtered.length;
+    const hot = filtered.filter(l => l.stage.toLowerCase()==='hot').length;
+    const warm = filtered.filter(l => l.stage.toLowerCase()==='warm').length;
+    const cold = filtered.filter(l => l.stage.toLowerCase()==='cold').length;
+
+    document.getElementById('store-stats').innerHTML = `
+        <div class="stats-card"><p class="text-gray-400 text-sm">Total Store Leads</p><p class="text-3xl font-bold text-white mt-2">${total}</p></div>
+        <div class="stats-card border-l-4 border-l-red-500"><p class="text-gray-400 text-sm">Hot</p><p class="text-3xl font-bold text-red-400 mt-2">${hot}</p></div>
+        <div class="stats-card border-l-4 border-l-yellow-500"><p class="text-gray-400 text-sm">Warm</p><p class="text-3xl font-bold text-yellow-400 mt-2">${warm}</p></div>
+        <div class="stats-card border-l-4 border-l-blue-500"><p class="text-gray-400 text-sm">Cold</p><p class="text-3xl font-bold text-blue-400 mt-2">${cold}</p></div>
+    `;
+
+    const tbody = document.getElementById('store-table-body');
+    tbody.innerHTML = '';
+    if (filtered.length===0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-500">No store leads</td></tr>';
+    } else {
+        filtered.forEach(lead => {
+            let stageClass = '';
+            if (lead.stage.toLowerCase() === 'hot') stageClass = 'status-hot';
+            else if (lead.stage.toLowerCase() === 'warm') stageClass = 'status-warm';
+            else if (lead.stage.toLowerCase() === 'cold') stageClass = 'status-cold';
+            else stageClass = 'bg-gray-700 text-gray-300';
+
+            const preview = lead.remark.split('\n').map(s => s.trim()).filter(s=>s).join(' • ') || lead.remark.substring(0,60);
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="font-medium">${lead.name}</td>
+                <td>${lead.email}</td>
+                <td>${lead.phone}</td>
+                <td><span class="source-badge">${lead.source}</span></td>
+                <td>${lead.budget}</td>
+                <td>${lead.owner}</td>
+                <td><span class="status-badge ${stageClass}">${lead.stage}</span></td>
+                <td>
+                    <div class="remark-cell">
+                        <span class="remark-preview">${preview}</span>
+                        <button class="read-more-btn" onclick='showLeadPopup(${JSON.stringify(lead).replace(/'/g, "\\'")})'>Read</button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+}
+
+function applyStoreFilters() {
+    storeSearchTerm = document.getElementById('storeSearchInput').value;
+    const dateStr = document.getElementById('storeDateFilter').value;
+    storeFilterDate = dateStr ? new Date(dateStr + 'T00:00:00') : null;
+    updateStoreDashboard();
+}
+
+function clearStoreFilters() {
+    document.getElementById('storeSearchInput').value = '';
+    document.getElementById('storeDateFilter').value = '';
+    storeSearchTerm = '';
+    storeFilterDate = null;
+    updateStoreDashboard();
+}
+
+function exportStoreToExcel() {
+    const filtered = filterStoreLeads();
+    if (filtered.length===0) { showToast('No store data', true); return; }
+    const rows = [];
+    rows.push('VCUE STORE LEADS');
+    rows.push(['Name','Email','Phone','Source','Budget','Owner','Stage','Remark','DateAdded'].join(','));
+    filtered.forEach(l => rows.push(`"${l.name}","${l.email}","${l.phone}","${l.source}","${l.budget}","${l.owner}","${l.stage}","${l.remark}","${l.dateAdded || ''}"`));
+    const blob = new Blob([rows.join('\n')],{type:'text/csv'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `store_export_${Date.now()}.csv`; a.click();
+    showToast('Exported');
+}
+
+// ========== HOME ANALYTICS (Admin only) ==========
+function showHomeAnalytics() {
+    if (currentRole !== 'Admin') return; // safety
+    activeDepartment = null;
+    document.getElementById('dept-select-screen').style.display = 'none';
+    document.getElementById('department-dashboard').classList.add('hidden-pane');
+    document.getElementById('gmeet-pane').classList.add('hidden-pane');
+    document.getElementById('pipeline-pane').classList.add('hidden-pane');
+    document.getElementById('store-dashboard').classList.add('hidden-pane');
+    document.getElementById('home-analytics').classList.remove('hidden-pane');
+    
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    document.getElementById('nav-home').classList.add('active');
+    
+    renderHomeAnalytics();
+}
+
+function renderHomeAnalytics() {
+    // Build stats per owner
+    const stats = {};
+    
+    // Process leads
+    leads.forEach(lead => {
+        const owner = lead.owner || 'Unassigned';
+        if (!stats[owner]) {
+            stats[owner] = { totalLeads:0, hot:0, warm:0, cold:0, pipeline:0, meetings:0 };
+        }
+        stats[owner].totalLeads++;
+        const stage = (lead.stage || '').toLowerCase();
+        if (stage === 'hot') stats[owner].hot++;
+        else if (stage === 'warm') stats[owner].warm++;
+        else if (stage === 'cold') stats[owner].cold++;
+    });
+
+    // Process GMeet meetings
+    gmeetMeetings.forEach(meet => {
+        const owner = meet.leadOwner || 'Unassigned';
+        if (!stats[owner]) {
+            stats[owner] = { totalLeads:0, hot:0, warm:0, cold:0, pipeline:0, meetings:0 };
+        }
+        stats[owner].meetings++;
+        const amount = parseFloat(meet.amountPitched.replace(/[^0-9.]/g, '')) || 0;
+        stats[owner].pipeline += amount;
+    });
+
+    // Summary cards
+    const totalUsers = Object.keys(stats).length;
+    const totalLeadsAll = leads.length;
+    const totalPipelineAll = Object.values(stats).reduce((acc, s) => acc + s.pipeline, 0);
+    const formatter = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 });
+
+    document.getElementById('home-summary-stats').innerHTML = `
+        <div class="stats-card"><p class="text-gray-400 text-sm">Team Members</p><p class="text-3xl font-bold text-white mt-2">${totalUsers}</p></div>
+        <div class="stats-card"><p class="text-gray-400 text-sm">Total Leads</p><p class="text-3xl font-bold text-white mt-2">${totalLeadsAll}</p></div>
+        <div class="stats-card"><p class="text-gray-400 text-sm">Total Pipeline</p><p class="text-3xl font-bold text-white mt-2">${formatter.format(totalPipelineAll).replace('₹', '₹')}</p></div>
+        <div class="stats-card"><p class="text-gray-400 text-sm">G Meets</p><p class="text-3xl font-bold text-white mt-2">${gmeetMeetings.length}</p></div>
+    `;
+
+    // Table rows
+    const tbody = document.getElementById('home-table-body');
+    tbody.innerHTML = '';
+    const sortedOwners = Object.keys(stats).sort();
+    sortedOwners.forEach(owner => {
+        const s = stats[owner];
+        tbody.innerHTML += `<tr>
+            <td>${owner}</td>
+            <td>${s.totalLeads}</td>
+            <td><span class="status-badge status-hot">${s.hot}</span></td>
+            <td><span class="status-badge status-warm">${s.warm}</span></td>
+            <td><span class="status-badge status-cold">${s.cold}</span></td>
+            <td>${formatter.format(s.pipeline).replace('₹', '₹')}</td>
+            <td>${s.meetings}</td>
+        </tr>`;
+    });
+}
+
+// ========== NAVIGATION & EXPORT ==========
+function showGMeet() {
+    activeDepartment = null;
+    document.getElementById('dept-select-screen').style.display = 'none';
+    document.getElementById('department-dashboard').classList.add('hidden-pane');
+    document.getElementById('gmeet-pane').classList.remove('hidden-pane');
+    document.getElementById('pipeline-pane').classList.add('hidden-pane');
+    document.getElementById('store-dashboard').classList.add('hidden-pane');
+    document.getElementById('home-analytics').classList.add('hidden-pane');
+    
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(item => {
+        if (item.innerText.includes('G Meet')) item.classList.add('active');
+    });
+    
+    renderGMeetTable();
+}
+
+function showPipeline() {
+    activeDepartment = null;
+    document.getElementById('dept-select-screen').style.display = 'none';
+    document.getElementById('department-dashboard').classList.add('hidden-pane');
+    document.getElementById('gmeet-pane').classList.add('hidden-pane');
+    document.getElementById('pipeline-pane').classList.remove('hidden-pane');
+    document.getElementById('store-dashboard').classList.add('hidden-pane');
+    document.getElementById('home-analytics').classList.add('hidden-pane');
+    
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(item => {
+        if (item.innerText.includes('Pipeline')) item.classList.add('active');
+    });
+    
+    renderPipeline();
+}
+
 function exportToExcel() {
-    // same as before, but for team members only their data
     if (activeDepartment) {
         const filtered = filterLeads();
         if (filtered.length===0 && gmeetMeetings.length===0) { showToast('No data', true); return; }
@@ -1069,22 +1728,21 @@ function exportToExcel() {
         rows.push(['Name','Email','Phone','Source','Budget','Owner','Stage','Remark','DateAdded'].join(','));
         filtered.forEach(l => rows.push(`"${l.name}","${l.email}","${l.phone}","${l.source}","${l.budget}","${l.owner}","${l.stage}","${l.remark}","${l.dateAdded || ''}"`));
         rows.push(''); rows.push('G MEET DATA');
-        rows.push(['Lead Owner','Lead Name','Date','Agenda','Outcome','Proposal','Amount'].join(','));
+        rows.push(['Lead Owner','Department','Lead Name','Date','Agenda','Outcome','Proposal','Amount'].join(','));
         let meetings = gmeetMeetings;
         if (currentRole === 'Team Member') meetings = meetings.filter(m => m.leadOwner === currentUser);
-        meetings.forEach(m => rows.push(`"${m.leadOwner}","${m.leadName}","${m.meetDate}","${m.agenda}","${m.outcome}","${m.proposalShared}","${m.amountPitched}"`));
+        meetings.forEach(m => rows.push(`"${m.leadOwner}","${m.department}","${m.leadName}","${m.meetDate}","${m.agenda}","${m.outcome}","${m.proposalShared}","${m.amountPitched}"`));
         const blob = new Blob([rows.join('\n')],{type:'text/csv'});
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `${currentUser}_export_${Date.now()}.csv`; a.click();
         showToast('Exported');
     } else {
-        // from gmeet or pipeline view
         let meetings = gmeetMeetings;
         if (currentRole === 'Team Member') meetings = meetings.filter(m => m.leadOwner === currentUser);
         if (meetings.length===0) { showToast('No G Meet data', true); return; }
         const rows = [];
         rows.push('G MEET DATA');
-        rows.push(['Lead Owner','Lead Name','Date','Agenda','Outcome','Proposal','Amount'].join(','));
-        meetings.forEach(m => rows.push(`"${m.leadOwner}","${m.leadName}","${m.meetDate}","${m.agenda}","${m.outcome}","${m.proposalShared}","${m.amountPitched}"`));
+        rows.push(['Lead Owner','Department','Lead Name','Date','Agenda','Outcome','Proposal','Amount'].join(','));
+        meetings.forEach(m => rows.push(`"${m.leadOwner}","${m.department}","${m.leadName}","${m.meetDate}","${m.agenda}","${m.outcome}","${m.proposalShared}","${m.amountPitched}"`));
         const blob = new Blob([rows.join('\n')],{type:'text/csv'});
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `gmeet_export_${Date.now()}.csv`; a.click();
         showToast('Exported');
@@ -1092,7 +1750,216 @@ function exportToExcel() {
 }
 
 document.addEventListener('keydown', e => { if(e.key==='Escape') document.querySelectorAll('.modal-overlay.active').forEach(m=>m.classList.remove('active')); });
-setInterval(loadAllSheets, 300000); // refresh every 5 minutes
+setInterval(loadAllSheets, 300000);
+
+// Add this to your existing <script> section
+
+// --- New function to show the Meta Ads pane ---
+function showMetaAds() {
+    // Hide all other panes
+    document.getElementById('dept-select-screen').style.display = 'none';
+    document.getElementById('department-dashboard').classList.add('hidden-pane');
+    document.getElementById('gmeet-pane').classList.add('hidden-pane');
+    document.getElementById('pipeline-pane').classList.add('hidden-pane');
+    document.getElementById('store-dashboard').classList.add('hidden-pane');
+    document.getElementById('home-analytics').classList.add('hidden-pane');
+
+    // Show the Meta Ads pane
+    document.getElementById('meta-ads-pane').classList.remove('hidden-pane');
+
+        // Reset to last 30 days and fetch
+    resetMetaDateFilter();
+}
+    // Update active state in sidebar (you'll need to add the nav item for Meta Ads first)
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    // Assuming you add a nav item with an onclick="showMetaAds()"
+    // You'll need to add the logic to highlight it here.
+
+    // Fetch and render the data
+    fetchMetaAdsData();
+
+
+// --- New function to fetch data from our backend ---
+async function fetchMetaAdsData(fromDate, toDate) {
+    const tbody = document.getElementById('meta-ads-table-body');
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500">Loading...</td></tr>';
+
+    try {
+        // Build URL with query parameters if dates are provided
+        let url = 'https://lightcoral-lark-466180.hostingersite.com/api/meta-ads';
+        if (fromDate && toDate) {
+            url += `?since=${fromDate}&until=${toDate}`;
+        }
+
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+
+        renderMetaAdsTable(data);
+        renderMetaAdsSummary(data);
+    } catch (error) {
+        console.error('Error fetching Meta Ads data:', error);
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500">Failed to load Meta Ads data. Is the backend running?</td></tr>';
+    }
+}
+
+// --- New function to render the data into the table ---
+function renderMetaAdsTable(campaigns) {
+    const tbody = document.getElementById('meta-ads-table-body');
+    if (!campaigns || campaigns.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500">No campaign data available.</td></tr>';
+        return;
+    }
+
+    let html = '';
+    campaigns.forEach(campaign => {
+        // Format numbers nicely
+        const spend = parseFloat(campaign.spend || 0).toFixed(2);
+        const cpc = parseFloat(campaign.cpc || 0).toFixed(2);
+        const ctr = parseFloat(campaign.ctr || 0).toFixed(2);
+
+        html += `<tr>
+            <td class="font-medium">${campaign.campaign_name || 'N/A'}</td>
+            <td>${campaign.impressions || 0}</td>
+            <td>${campaign.clicks || 0}</td>
+            <td>₹ ${spend}</td>
+            <td>₹ ${cpc}</td>
+            <td>${ctr}%</td>
+            <td>${campaign.date_start || ''} to ${campaign.date_stop || ''}</td>
+        </tr>`;
+    });
+    tbody.innerHTML = html;
+}
+
+// --- Optional: Function to create summary cards ---
+function renderMetaAdsSummary(campaigns) {
+    // This function would calculate totals (total spend, total clicks, etc.)
+    // and update the summary cards in the #meta-ads-summary div.
+    // You can write this based on your existing summary card logic.
+    console.log('Calculating summary for', campaigns.length, 'campaigns');
+    // ... (implementation similar to your dept-stats cards)
+}
+
+// Apply selected date range
+function applyMetaDateFilter() {
+    const fromDate = document.getElementById('meta-date-from').value;
+    const toDate = document.getElementById('meta-date-to').value;
+
+    if (!fromDate || !toDate) {
+        showToast('Please select both from and to dates', true);
+        return;
+    }
+
+    if (fromDate > toDate) {
+        showToast('"From" date cannot be after "To" date', true);
+        return;
+    }
+
+    // Fetch data with the selected dates
+    fetchMetaAdsData(fromDate, toDate);
+}
+
+// Reset to last 30 days (today and 30 days ago)
+function resetMetaDateFilter() {
+    const today = new Date();
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(today.getDate() - 30);
+
+    // Format as YYYY-MM-DD for input fields
+    const formatDate = (date) => date.toISOString().split('T')[0];
+
+    document.getElementById('meta-date-from').value = formatDate(thirtyDaysAgo);
+    document.getElementById('meta-date-to').value = formatDate(today);
+
+    // Fetch data with this default range
+    fetchMetaAdsData(formatDate(thirtyDaysAgo), formatDate(today));
+}
+
+async function createCustomAudience() {
+    const segment = document.getElementById('audience-segment').value;
+    const audienceName = document.getElementById('audience-name').value;
+    
+    if (!audienceName) {
+        showToast('Please enter an audience name', true);
+        return;
+    }
+    
+    // Show loading state
+    const statusDiv = document.getElementById('audience-status');
+    statusDiv.className = 'mt-4 text-sm text-blue-400';
+    statusDiv.innerHTML = 'Creating audience and uploading leads...';
+    statusDiv.classList.remove('hidden');
+    
+    try {
+        // 1. Get leads from the selected segment
+        const leadsToUpload = getLeadsForSegment(segment);
+        
+        if (leadsToUpload.length === 0) {
+            statusDiv.className = 'mt-4 text-sm text-yellow-400';
+            statusDiv.innerHTML = 'No leads found in this segment';
+            return;
+        }
+        
+        // 2. Extract emails and phones for upload
+        const customerData = leadsToUpload.map(lead => ({
+            email: lead.email,
+            phone: lead.phone,
+            // Optional: add first/last name if available
+            fn: lead.name?.split(' ')[0],
+            ln: lead.name?.split(' ').slice(1).join(' ')
+        })).filter(data => data.email || data.phone); // Only include entries with identifiers
+        
+        // 3. Call your backend to create the audience and upload data
+        const response = await fetch('https://lightcoral-lark-466180.hostingersite.com/api/meta/custom-audience', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name: audienceName,
+                customers: customerData,
+                createNew: true // Flag to create new audience
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            statusDiv.className = 'mt-4 text-sm text-green-400';
+            statusDiv.innerHTML = `✅ Success! Audience "${audienceName}" created. 
+                Uploaded ${result.uploaded} records. 
+                ${result.matched || 'Processing'} will match within 24 hours.`;
+        } else {
+            throw new Error(result.error);
+        }
+    } catch (error) {
+        statusDiv.className = 'mt-4 text-sm text-red-400';
+        statusDiv.innerHTML = `❌ Error: ${error.message}`;
+    }
+}
+
+async function syncToExistingAudience() {
+    // Similar to createCustomAudience but without creating a new audience
+    // You'd need to add an input for existing audience ID
+    // Implementation similar to above but with createNew: false
+}
+
+function getLeadsForSegment(segment) {
+    // Use your existing leads array
+    switch(segment) {
+        case 'hot':
+            return leads.filter(l => l.stage?.toLowerCase() === 'hot');
+        case 'warm':
+            return leads.filter(l => l.stage?.toLowerCase() === 'warm');
+        case 'cold':
+            return leads.filter(l => l.stage?.toLowerCase() === 'cold');
+        case 'all':
+            return leads; // All digital sales leads
+        case 'store':
+            return storeLeads;
+        default:
+            return [];
+    }
+}
+
 </script>
 </body>
 </html>
